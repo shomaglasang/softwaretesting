@@ -1,0 +1,161 @@
+*** Settings ***
+Documentation                   This resource file contains patient project related keywords.
+Library                         Selenium2Library
+
+
+*** Keywords ***
+# Function: Fail if patient project template is not found
+# Origin  : Network Setup template page
+Check Patient Project Template
+   [Arguments]  ${template_name}
+   Page Should Contain Element  xpath=//div[@class="template-group ng-scope"]/div[1]/div[@class="template-list"]/div/table/tbody/tr/td/span[contains(text(), "${template_name}")]
+
+
+# Function: Remove patient project template
+# Origin  : Network Setup template page
+Remove Patient Project Template
+   [Arguments]  ${template_name}
+   Click Element  xpath=//div[@class="template-group ng-scope"]/div[1]/div[@class="template-list"]/div/table/tbody/tr/td[span[contains(text(), "${template_name}")]]/span[1]/a[2]
+   Confirm Action
+
+
+# Function: Check if patient project template exist and remove it
+# Origin  : Network Setup template page
+Check And Remove Patient Project Template
+   [Arguments]  ${network}  ${network_smallcase}  ${template_name}
+   Go To Collab Network Setup Page  ${network}  ${network_smallcase}
+   Wait Until Page Contains Element  xpath=//div[@class="template-group ng-scope"]/div[1]/div[@class="template-list"]  15
+   Sleep  3
+   ${status}  Run Keyword And Return Status  Check Patient Project Template  ${template_name}
+   Run Keyword If  '${status}' == 'True'  Remove Patient Project Template  ${template_name}
+
+
+# Function: Check and fail if patient project template doesn't exist
+# Origin  : Network Setup template page
+Check And Verify Patient Project Template
+   [Arguments]  ${network}  ${network_smallcase}  ${template_name}
+   Go To Collab Network Setup Page  ${network}  ${network_smallcase}
+   Wait Until Page Contains Element  xpath=//div[@class="template-group ng-scope"]/div[1]/div[@class="template-list"]  15
+   Sleep  3
+   Page Should Contain Element  xpath=//div[@class="template-group ng-scope"]/div[1]/div[@class="template-list"]/div/table/tbody/tr/td/span[contains(text(), "${template_name}")]
+
+
+# Function: Add a patient project template
+# Origin  : Network Setup template page
+Add Patient Project Template By Info
+   [Arguments]  ${template_name}  @{info}
+   Click Element  xpath=//*[@id="content"]/div/div/div[1]/span[2]/a
+   Wait Until Page Contains  Project Information  15
+   Input Text  template_title  ${template_name}
+   Run Keyword If  '@{info}[0]' != '${EMPTY}'  Input Text  template_overview  @{info}[0]
+   Run Keyword If  '@{info}[1]' != '${EMPTY}'  Input Text  template_requirements  @{info}[1]
+   Run Keyword If  '@{info}[2]' != '${EMPTY}'  Input Text  template_agreement  @{info}[2]
+   Focus  //*[@id="template-form"]/div[3]/input
+   Click Button  Voeg toe
+   Wait Until Page Contains Element  xpath=//div[@class="template-group ng-scope"]/div[1]/div[@class="template-list"]  15
+
+
+# Function: Set patient project template participants
+# Origin  : Network Setup template page
+Set Patient Project Template Participants
+   [Arguments]  ${template_name}  @{participants}
+   Click Element  xpath=//div[@class="template-group ng-scope"]/div[1]/div[@class="template-list"]/div/table/tbody/tr/td[span[contains(text(), "${template_name}")]]/span[1]/a[1]
+   Wait Until Page Contains  Project Information  15
+   Click Link  Members
+   Wait Until Page Contains  Choose project participants  15
+   :FOR  ${group}  IN  @{participants}
+   \  Click Element  xpath=//table[@id="template_participants_table"]/tbody//tr/td/label[text()[contains(., "${group}")]]
+   Focus  //*[@id="template-form"]/div[3]/input
+   Click Button  Voeg toe
+   Wait Until Page Contains Element  xpath=//div[@class="template-group ng-scope"]/div[1]/div[@class="template-list"]  15
+
+
+# Function: Set patient project template initiators
+# Origin  : Network Setup template page
+Set Patient Project Template Initiators
+   [Arguments]  ${template_name}  @{initiators}
+   Click Element  xpath=//div[@class="template-group ng-scope"]/div[1]/div[@class="template-list"]/div/table/tbody/tr/td[span[contains(text(), "${template_name}")]]/span[1]/a[1]
+   Wait Until Page Contains  Project Information  15
+   Click Link  Members
+   Wait Until Page Contains  Choose project participants  15
+   :FOR  ${initiator}  IN  @{initiators}
+   \  Click Element  xpath=//table[@id="template_creators_table"]/tbody//tr/td/label[text()[contains(., "${initiator}")]]
+   Focus  //*[@id="template-form"]/div[3]/input
+   Click Button  Voeg toe
+   Wait Until Page Contains Element  xpath=//div[@class="template-group ng-scope"]/div[1]/div[@class="template-list"]  15
+
+
+# Function: Set patient project template Medform
+# Origin  : Network Setup template page
+Set Patient Project Template Medform
+   [Arguments]  ${template_name}  ${medform}  ${protocol}  ${group}
+   Click Element  xpath=//div[@class="template-group ng-scope"]/div[1]/div[@class="template-list"]/div/table/tbody/tr/td[span[contains(text(), "${template_name}")]]/span[1]/a[1]
+   Wait Until Page Contains  Project Information  15
+   Click Link  Medical Forms
+   Wait Until Page Contains  Settings  15
+   Click Element  xpath=//*[@id="medforms"]/div/div[1]/table/tbody/tr[td[contains(text(), "${medform}")]]
+   Click Link  + Add
+   Wait Until Page Contains Element  new_protocol_field  15
+   Input Text  new_protocol_field  ${protocol}
+   Click Link  xpath=//*[@id="medforms"]/div/div[2]/div[4]/div[1]/a
+   Focus  //*[@id="medforms"]/div/div[2]/div[4]/div[2]/div/div/a
+   Click Link  + Add Groups
+   Wait Until Page Contains Element  new_group_field  15
+   Focus  new_group_field
+   Input Text  new_group_field  ${group}
+   Focus  xpath=//*[@id="medforms"]/div/div[2]/div[4]/div[2]/div/div/div[2]/a
+   Click Link  xpath=//*[@id="medforms"]/div/div[2]/div[4]/div[2]/div/div/div[2]/a
+   Sleep  3
+   Focus  //*[@id="template-form"]/div[3]/input
+   Click Button  Voeg toe
+   Wait Until Page Contains Element  xpath=//div[@class="template-group ng-scope"]/div[1]/div[@class="template-list"]  15
+
+
+# Function: Set patient project template MedForm read-write access
+# Origin  : Network Setup template page
+Set Patient Project Template Medform ReadWrite Access
+   [Arguments]  ${template_name}  ${medform}  @{roles}
+   Click Element  xpath=//div[@class="template-group ng-scope"]/div[1]/div[@class="template-list"]/div/table/tbody/tr/td[span[contains(text(), "${template_name}")]]/span[1]/a[1]
+   Wait Until Page Contains  Project Information  15
+   Click Link  Medical Forms
+   Wait Until Page Contains  Settings  15
+   Click Element  xpath=//*[@id="medforms"]/div/div[1]/table/tbody/tr[td[contains(text(), "${medform}")]]
+   :FOR  ${role}  IN  @{roles}
+   \  Click Element  xpath=//*[@id="medforms"]/div/div[2]/div[3]/table/tbody/tr[td[contains(text(), "${role}")]]/td[2]/input
+   Sleep  3
+   Focus  //*[@id="template-form"]/div[3]/input
+   Click Button  Voeg toe
+   Wait Until Page Contains Element  xpath=//div[@class="template-group ng-scope"]/div[1]/div[@class="template-list"]  15
+
+
+# Function: Set patient project template MedForm read access
+# Origin  : Network Setup template page
+Set Patient Project Template Medform Read Access
+   [Arguments]  ${template_name}  ${medform}  @{roles}
+   Click Element  xpath=//div[@class="template-group ng-scope"]/div[1]/div[@class="template-list"]/div/table/tbody/tr/td[span[contains(text(), "${template_name}")]]/span[1]/a[1]
+   Wait Until Page Contains  Project Information  15
+   Click Link  Medical Forms
+   Wait Until Page Contains  Settings  15
+   Click Element  xpath=//*[@id="medforms"]/div/div[1]/table/tbody/tr[td[contains(text(), "${medform}")]]
+   :FOR  ${role}  IN  @{roles}
+   \  Click Element  xpath=//*[@id="medforms"]/div/div[2]/div[3]/table/tbody/tr[td[contains(text(), "${role}")]]/td[3]/input
+   Sleep  3
+   Focus  //*[@id="template-form"]/div[3]/input
+   Click Button  Voeg toe
+   Wait Until Page Contains Element  xpath=//div[@class="template-group ng-scope"]/div[1]/div[@class="template-list"]  15
+
+
+# Function: Set patient project template disabled tabs
+# Origin  : Network Setup template page
+Set Patient Project Template Disabled Tabs
+   [Arguments]  ${template_name}  @{tabs}
+   Click Element  xpath=//div[@class="template-group ng-scope"]/div[1]/div[@class="template-list"]/div/table/tbody/tr/td[span[contains(text(), "${template_name}")]]/span[1]/a[1]
+   Wait Until Page Contains  Project Information  15
+   Click Link  Project Tabs
+   Wait Until Page Contains  Choose Project Tabs  15
+   :FOR  ${tab}  IN  @{tabs}
+   \  Click Element  xpath=//*[@id="project_tabs"]/div/table/tbody/tr/td/label[text()[contains(., "${tab}")]]/input
+   Sleep  3
+   Click Button  Voeg toe
+   Wait Until Page Contains Element  xpath=//div[@class="template-group ng-scope"]/div[1]/div[@class="template-list"]  15
+

@@ -1,0 +1,67 @@
+*** Settings ***
+Documentation                   This test suite contains patient project template related test cases.
+...
+...                             Patient project template is accessible only to Network Admins.
+...                             Test Cases
+...                             1. Create patient project template
+...                             2. Delete patient project template
+...                             3. Update patient project template
+...                             3. Generate test project
+...                             4. Open test project
+Suite Setup                     Launch Test Browser
+Suite Teardown                  Stop Test Browser
+Resource                        ../config/env.txt
+Resource                        ../resources/app_access.txt
+Resource                        ../resources/navigation.txt
+Resource                        ../resources/patient_project.txt
+Default tags                    COLLAB PATIENT_PROJECT_TEMPLATE
+
+
+*** Variables ***
+# Patient Project Template data
+${NETWORK}                      Test Network
+${NETWORK_SMALLCASE}            test-network
+${TEMPLATE_NAME}                TEST DIABETES
+${TEMPLATE_OVERVIEW}            This is a test DIABETES template.
+${TEMPLATE_REQUIREMENTS}        No specific requirements.
+${TEMPLATE_AGREEMENT}           No specific agreements.
+@{PROJECT_PARTICIPANTS}         Test User Group  Testers
+@{PROJECT_INITIATORS}           Test User Group  Testers
+@{PROJECT_TABS_DISABLE}         Communicatie
+
+# Protocol1 and Medforms
+${FORM1_NAME}                   Diabetes Test Form
+${FORM1_PROTO_NAME}             Diabetes
+${FORM1_PROTO_GRP_NAME}         Basic Information
+@{FORM1_RW_ROLES}               Huisarts  POH
+@{FORM1_READ_ROLES}             Overig
+
+
+*** Test Cases ***
+Create Patient Project Template
+    Open Collab App
+    Clean Test Data
+    Sleep  3
+    @{info}  Create List  ${TEMPLATE_OVERVIEW}  ${TEMPLATE_REQUIREMENTS}  ${TEMPLATE_AGREEMENT}
+    Add Patient Project Template By Info  ${TEMPLATE_NAME}  @{info}
+    Set Patient Project Template Participants  ${TEMPLATE_NAME}  @{PROJECT_PARTICIPANTS}
+    Set Patient Project Template Initiators  ${TEMPLATE_NAME}  @{PROJECT_INITIATORS}
+    Set Patient Project Template Medform  ${TEMPLATE_NAME}  ${FORM1_NAME}  ${FORM1_PROTO_NAME}  ${FORM1_PROTO_GRP_NAME}
+    Set Patient Project Template Medform ReadWrite Access  ${TEMPLATE_NAME}  ${FORM1_NAME}  @{FORM1_RW_ROLES}
+    Set Patient Project Template Medform Read Access  ${TEMPLATE_NAME}  ${FORM1_NAME}  @{FORM1_READ_ROLES}
+    Set Patient Project Template Disabled Tabs  ${TEMPLATE_NAME}  @{PROJECT_TABS_DISABLE}
+
+
+*** Keywords ***
+Launch Test Browser
+    Open Browser To Login Page  ${HOME_URL}  ${BROWSER}  ${BROWSER_DELAY}
+    Login User  ${NET_ADMIN_USERNAME}  ${NET_ADMIN_PASSWORD}
+
+
+Stop Test Browser
+    Close Browser
+
+
+Clean Test Data
+    Check And Remove Patient Project Template  ${NETWORK}  ${NETWORK_SMALLCASE}  ${TEMPLATE_NAME}
+

@@ -1,0 +1,65 @@
+*** Settings ***
+Documentation                   This test suite contains test cases related to releasing patient project templates.
+...
+...                             Release management is accessible only to Network Admins.
+...                             Test Cases
+...                             1. Publish a patient project template in a new release
+...                             2. Remove a patient project template in a new release
+...                             3. Revert to last release
+Suite Setup                     Launch Test Browser
+Suite Teardown                  Stop Test Browser
+Test Teardown                   Go To Collab Dashboard
+Resource                        ../config/env.txt
+Resource                        ../resources/app_access.txt
+Resource                        ../resources/navigation.txt
+Resource                        ../resources/patient_project.txt
+Resource                        ../resources/releasing.txt
+Default tags                    COLLAB RELEASE_PATIENT_PROJECT_TEMPLATE
+
+
+*** Variables ***
+# Patient Project Template data
+${NETWORK}                      Test Network
+${NETWORK_SMALLCASE}            test-network
+${TEMPLATE_NAME}                TEST DIABETES
+
+${REL1_NAME}                    Test Release 1
+${REL2_NAME}                    Test Release 2
+
+
+*** Test Cases ***
+Publish A Patient Project Template In A New Release
+    Open Collab App
+    Check Required Test Data
+    Sleep  3
+    Create Patient Project Release  ${TEMPLATE_NAME}  ${REL1_NAME}
+    Check And Verify Patient Project Release  ${TEMPLATE_NAME}  ${REL1_NAME}
+
+
+Remove A Patient Project Template In A New Release
+    Open Collab App
+    Check Required Test Data
+    Sleep  3
+    Remove Patient Project Template From Release  ${TEMPLATE_NAME}  ${REL2_NAME}
+    Fail If Patient Project Template Exist In Release  ${TEMPLATE_NAME}  ${REL2_NAME}
+
+
+Revert To Last Release
+    Open Collab App
+    Revert To Last Release  ${NETWORK}  ${NETWORK_SMALLCASE}
+    Check And Verify Patient Project Release  ${TEMPLATE_NAME}  ${REL1_NAME}
+
+
+*** Keywords ***
+Launch Test Browser
+    Open Browser To Login Page  ${HOME_URL}  ${BROWSER}  ${BROWSER_DELAY}
+    Login User  ${NET_ADMIN_USERNAME}  ${NET_ADMIN_PASSWORD}
+
+
+Stop Test Browser
+    Close Browser
+
+
+Check Required Test Data
+    Check And Verify Patient Project Template  ${NETWORK}  ${NETWORK_SMALLCASE}  ${TEMPLATE_NAME}
+

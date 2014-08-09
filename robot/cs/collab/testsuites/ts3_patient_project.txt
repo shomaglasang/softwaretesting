@@ -1,0 +1,62 @@
+*** Settings ***
+Documentation                   This test suite contains patient project related test cases.
+...
+...                             Test Cases
+...                             1. Create patient project
+...                             2. Set user project role
+...                             3. Invite users to project
+Suite Setup                     Launch Test Browser
+Suite Teardown                  Stop Test Browser
+Resource                        ../config/env.txt
+Resource                        ../resources/app_access.txt
+Resource                        ../resources/navigation.txt
+Resource                        ../resources/vecozo.txt
+Default tags                    COLLAB PATIENT_PROJECT
+
+
+*** Variables ***
+# Network Info
+${NETWORK}                      Test Network
+${NETWORK_SMALLCASE}            test-network
+${TEMPLATE_NAME}                TEST DIABETES
+
+# Clinic Info
+${NET_ADMIN_CLINIC}             Test Clinic
+
+# Patient Info
+${PROJECT_CLINIC}               ${NET_ADMIN_CLINIC} (${NETWORK})
+@{PATIENT1_INFO}                Patient101  Test101  10111950  123456102
+
+
+*** Test Cases ***
+Create Patient Project
+    Open Collab App
+    Click Element  add-project
+    Click Element  //*[@id="add-project-menu"]/ul/li[1]/a
+    Wait Until Page Contains Element  new-project-form  5
+    Mouse Down  project_clinic_key
+    ${clinic_value}  Execute Javascript  var dd = document.getElementById('project_clinic_key');for (var i = 0; i < dd.options.length; i++) {if (dd.options[i].text === "${PROJECT_CLINIC}") {return dd.options[i].value;}}
+    Mouse Up  xpath=//*[@id="project_clinic_key"]/option[@value="${clinic_value}"]
+    ${template_value}  Execute Javascript  var dd = document.getElementById('project_project_template_id');for (var i = 0; i < dd.options.length; i++) {if (dd.options[i].text === "${TEMPLATE_NAME}") {return dd.options[i].value;}}
+    Select From List  project_project_template_id  ${template_value}
+    Input Text  patient_bsn_search_field  @{PATIENT1_INFO}[3]
+    Input Text  patient_dob_field  @{PATIENT1_INFO}[2]
+    Sleep  3
+    Perform Vecozo Check  10
+    Input Text  patient_firstname  @{PATIENT1_INFO}[0]
+    Input Text  patient_lastname  @{PATIENT1_INFO}[1]
+    Click Button  submit_new_patient_project_btn
+    Wait Until Page Contains Element  patient-sidebar
+    Page Should Contain Element  xpath=//*[@id="patient-sidebar"]/div[3]/div/span[contains(text(), "@{PATIENT1_INFO}[1]")]
+    Sleep  5
+
+
+*** Keywords ***
+Launch Test Browser
+    Open Browser To Login Page  ${HOME_URL}  ${BROWSER}  ${BROWSER_DELAY}
+    Login User  ${NET_ADMIN_USERNAME}  ${NET_ADMIN_PASSWORD}
+
+
+Stop Test Browser
+    Close Browser
+

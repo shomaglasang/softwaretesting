@@ -1,0 +1,65 @@
+*** Settings ***
+Documentation                   This resource file contains release management keywords.
+Library                         Selenium2Library
+
+
+*** Keywords ***
+# Function: Create a release and publish it
+# Origin  : Network Setup Release page
+Create Patient Project Release
+   [Arguments]  ${template_name}  ${release_name}
+   Go To Collab Network Setup Release Page
+   Click Button  xpath=//*[@id="content-header"]/div/div/button
+   Wait Until Page Contains Element  network_release_name  15
+   Input Text  network_release_name  ${release_name}
+   Input Text  network_release_description  ${release_name}
+   Focus  xpath=//*[@id="new_network_release"]/div[4]/table[1]/tbody/tr[td[contains(text(), "${template_name}")]]/td[3]/label[text()[contains(., "Publish Changes")]]/div
+   Click Element  xpath=//*[@id="new_network_release"]/div[4]/table[1]/tbody/tr[td[contains(text(), "${template_name}")]]/td[3]/label[text()[contains(., "Publish Changes")]]/div
+   Focus  xpath=//*[@id="new_network_release"]/div[5]/input
+   Click Element  xpath=//*[@id="new_network_release"]/div[5]/input
+
+
+# Function: Check if release exists and template is included in it. Throw error on failure.
+# Origin  : Network Setup page
+# Target  : Network Setup Release page
+Check And Verify Patient Project Release
+   [Arguments]  ${template_name}  ${release_name}
+   Go To Collab Network Setup Release Page
+   Page Should Contain Element  xpath=//*[@id="content"]/div/div[2]/div[//div[1]/a/strong[contains(text(), "${release_name}")]]
+   Page Should Contain Element  xpath=//*[@id="content"]/div/div[2]/div[//div[1]/a/strong[contains(text(), "${release_name}")]]/div[2]/div/div/table/tbody/tr/td[text()[contains(., "${template_name}")]]
+
+
+# Function: Remove the specified patient project template from a new release
+# Origin  : Network Setup page
+# Target  : Network Setup Release page
+Remove Patient Project Template From Release
+   [Arguments]  ${template_name}  ${release_name}
+   Go To Collab Network Setup Release Page
+   Click Button  xpath=//*[@id="content-header"]/div/div/button
+   Wait Until Page Contains Element  network_release_name  15
+   Input Text  network_release_name  ${release_name}
+   Input Text  network_release_description  ${release_name}
+   Focus  xpath=//*[@id="new_network_release"]/div[4]/table[1]/tbody/tr[td[contains(text(), "${template_name}")]]/td[3]/label[text()[contains(., "Remove from Release")]]/div
+   Click Element  xpath=//*[@id="new_network_release"]/div[4]/table[1]/tbody/tr[td[contains(text(), "${template_name}")]]/td[3]/label[text()[contains(., "Remove from Release")]]/div
+   Focus  xpath=//*[@id="new_network_release"]/div[5]/input
+   Click Element  xpath=//*[@id="new_network_release"]/div[5]/input
+
+
+# Function: Revert to last release
+# Origin  : Anywhere in Collab
+# Target  : Network Setup Release page
+Revert To Last Release
+   [Arguments]  ${network}  ${network_smallcase}
+   Go To Collab Network Setup Page  ${network}  ${network_smallcase}
+   Go To Collab Network Setup Release Page
+   Click Element  xpath=//*[@id="content-header"]/div/a
+   Confirm Action
+
+
+# Function: Throw error in patient project template is included in the release
+# Origin  : Network Setup Release page
+Fail If Patient Project Template Exist In Release
+   [Arguments]  ${template_name}  ${release_name}
+   ${text}  Get Text  xpath=//*[@id="content"]/div/div[2]/div[//div[1]/a/strong[contains(text(), "${release_name}")]]/div[2]/div/div/table/tbody/tr/td[text()[contains(., "${template_name}")]]
+   Should Be Equal  ${text}  ${EMPTY}
+

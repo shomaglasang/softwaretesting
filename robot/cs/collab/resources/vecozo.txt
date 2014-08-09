@@ -1,0 +1,17 @@
+*** Settings ***
+Documentation                   This resource file contains Vecozo related keywords.
+Library                         Selenium2Library
+
+
+*** Keywords ***
+# Function: Perform Vecozo check until patient is found or max attempt.
+# Origin  : Add new project page
+Perform Vecozo Check
+    [Arguments]  ${max}
+    :FOR  ${index}  IN RANGE  ${max}
+    \  Click Element  patient_bsn_search_link
+    \  Sleep  3
+    \  ${status}  Run Keyword And Return Status  Page Should Contain  Insurance policies have been found
+    \  Exit For Loop If  '${status}' == 'True'
+    \  Sleep  1
+

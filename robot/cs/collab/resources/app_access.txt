@@ -1,0 +1,27 @@
+*** Settings ***
+Documentation                   Resource file for accessing Collab app.
+...
+...                             This resource file contains globally usable variables and
+...                             keywords. This file is ideal container for the following:
+...                             - Login/Logout keywords
+...                             - Global user variables
+...
+...                             Global variable names start with 'G_' prefix (e.g. G_USER).
+Library                         Selenium2Library
+
+*** Keywords ***
+Open Browser To Login Page
+    [Arguments]  ${url}  ${browser}  ${delay}
+    Open Browser  ${url}  ${browser}
+    Maximize Browser Window
+    Set Selenium Speed  ${delay}
+    Login Page Should Be Open
+
+Login Page Should Be Open
+    Title Should Be  Account - Sign in
+
+Login User
+    [Arguments]  ${username}  ${password}
+    Input Text  user_login  ${username}
+    Input Text  user_password  ${password}
+    Click Button  xpath=//div[@id='submit']/button

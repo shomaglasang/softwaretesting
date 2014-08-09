@@ -1,0 +1,85 @@
+*** Settings ***
+Documentation                   This resource file contains Collab navigation keywords
+Library                         Selenium2Library
+
+
+*** Variables ****
+${COLLAB_NAME}			Collab
+${COLLAB_TITLE}			Projects
+${PATIENT_PROJ_TEMPLATE_NAME}   Patient Project Template
+
+
+*** Keywords ***
+# Function: Open Collab app
+# Origin  : Anywhere
+# Target  : Collab dashboard
+Open Collab App
+   ${CURRENT_APP_NAME}  Get Title
+   Run Keyword  Switch From ${CURRENT_APP_NAME} To Collab App
+   Title Should Be  ${COLLAB_TITLE}
+
+
+# Function: Open Collab app from other apps
+# Origin  : Collab dashboard
+# Target  : Collab dashboard
+Switch From Projects To Collab App
+   Wait Until Page Contains Element  patient-projects
+
+
+# Function: Open Collab app from Medforms
+# Origin  : Medforms
+# Target  : Collab dashboard
+Switch From Medical Forms To Collab App
+   Click Link  applist-btn
+   Click Link  ${COLLAB_NAME}
+
+ 
+# Function: Open Collab app from Terminos
+# Origin  : Termninos
+# Target  : Collab dashboard
+Switch From Terminologies To Collab App
+   Click Link  applist-btn
+   Click Link  ${COLLAB_NAME}
+
+
+# Function: Open Collab app from Chronic Dashboard
+# Origin  : Chronic dashboard
+# Target  : Collab dashboard
+Switch From Dashboard To Collab App
+   Click Element  apps_launcher
+   Sleep  3
+   Click Link  Collab
+
+
+# Function: Go to Collab dashboard page
+# Origin  : Anywhere
+Go To Collab Dashboard
+   Go To  ${COLLAB_APP_URL}
+
+
+# Function: Open Collab Network setup page
+# Origin  : Collab dashboard
+# Target  : Network setup template page
+Go To Collab Network Setup Page
+   [Arguments]  ${network}  ${network_smallcase}
+   Mouse Over  omnibar-main-btn
+   Wait Until Page Contains Element  collab-network-apps
+   Focus  collab-network-apps
+   Click Link  xpath=//*[@id="collab-network-apps"]/li[@class="app ${network_smallcase}"]/span/a
+   Click Link  xpath=//div[@id="network_header"]/div[@class="actions span5"]/a[1]
+
+
+# Function: Open Collab Network setup template page
+# Origin  : Collab dashboard
+# Target  : Network setup template page
+Go To Collab Network Setup Template Page
+   [Arguments]  ${network}  ${network_smallcase}
+   Go To Collab Network Setup Page  ${network}  ${network_smallcase}
+
+
+# Function: Switch to Network Setup Release page
+# Origin  : Network Setup page
+# Target  : Collab Network Setup Release page
+Go To Collab Network Setup Release Page
+   Click Link  xpath=//*[@id="network-settings-container"]/div[2]/div[1]/div/ul/li[5]/a
+
